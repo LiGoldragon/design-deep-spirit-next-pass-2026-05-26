@@ -1,0 +1,25 @@
+;; signal-frame.schema — root-level frame-primitives schema (per
+;; designer-assistant/372 + designer-assistant/375). Declares the
+;; macro signatures that consumer schemas invoke. The macro
+;; implementations are registered as Rust ExpansionMacro trait impls in
+;; build.rs.
+;;
+;; Four-section root struct shape (record 805):
+;;   1. Imports     — empty (no external dependencies)
+;;   2. Inputs      — empty (signal-frame declares no surfaces)
+;;   3. Outputs     — n/a; combined into namespace
+;;   4. Namespace   — frame primitives + macro signatures
+{}
+
+[]
+
+{
+  ;; Macro signatures — the Macro tag plus positional inputs plus
+  ;; one output (last position). Per intent record 867.
+  Route (Macro SurfaceEnum RouteEnum)
+  SignalCodec (Macro InputSurface OutputSurface Codec)
+
+  ;; Frame error enum — emitted into the consumer's namespace via
+  ;; ImportAll.
+  FrameError (FrameTooShort FrameTooLarge UnknownShortHeader HeaderMismatch ArchiveEncode ArchiveDecode)
+}

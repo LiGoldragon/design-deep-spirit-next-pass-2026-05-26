@@ -1,0 +1,54 @@
+;; spirit.schema — v0.3-capability consumer using the finished schema
+;; macro engine (designer-assistant/375). Imports signal-frame.schema
+;; and INVOKES the imported Route + SignalCodec macros.
+;;
+;; Multi-topic records, Record + Observe + State operations,
+;; observation modes (DescriptionOnly + WithProvenance), topic counts,
+;; daemon-stamped timestamps.
+
+{ SignalFrame (ImportAll [signal-frame.schema]) }
+
+[
+  (Input (Record Entry) (Observe ObserveSelection) (State StateRequest))
+  (Output (RecordAccepted RecordIdentifier) (RecordsObserved RecordList) (TopicsObserved TopicCountList) (StateObserved StateView) (Error ErrorMessage))
+]
+
+{
+  Topic [Text]
+  TopicList [Topic]
+  Description [Text]
+  ErrorMessage [Text]
+  RecordIdentifier [Integer]
+  Date [Integer]
+  Time [Integer]
+
+  Entry [TopicList Kind Description Magnitude]
+  ObserveSelection [TopicQuery KindQuery ObservationMode]
+  TopicQuery (NoTopic (TopicMatch Topic))
+  KindQuery (NoKind (KindMatch Kind))
+  StateRequest (Topics)
+
+  RecordDescription [RecordIdentifier Description]
+  RecordWithProvenance [RecordIdentifier Date Time Entry]
+  RecordEntry ((DescriptionOnly RecordDescription) (WithProvenance RecordWithProvenance))
+  RecordList [RecordEntry]
+
+  TopicCount [Topic Integer]
+  TopicCountList [TopicCount]
+  StateView [TopicCountList]
+
+  Kind (Decision Principle Correction Clarification Constraint)
+  Magnitude (Minimum VeryLow Low Medium High VeryHigh Maximum)
+  ObservationMode (DescriptionOnly WithProvenance)
+
+  ;; Macro INVOCATIONS — the engine's fixed-point expansion resolves
+  ;; these by calling the registered ExpansionMacro impls. After
+  ;; expansion the asschema namespace also contains:
+  ;;   - InputRoute enum (Record, Observe, State unit variants)
+  ;;   - OutputRoute enum (RecordAccepted, RecordsObserved, ...
+  ;;     TopicsObserved, StateObserved, Error unit variants)
+  ;;   - ApexCodec struct (the codec marker)
+  InputRoute (Route Input)
+  OutputRoute (Route Output)
+  ApexCodec (SignalCodec Input Output)
+}
